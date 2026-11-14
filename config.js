@@ -4,7 +4,7 @@
 //  2) Everything else (name, groups, labels, which modules show) comes from
 //     the "Programs" sheet in the database workbook — no code changes needed.
 // ============================================================================
-const APPS_SCRIPT_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQOW946XRkT60JSci-J015NajxRT_5EDXjtZvWs6Ps7aotsz3vvokuDAw_oblCFCIK/exec";
 
 const QUEUE_KEY = 'registry_offline_queue_v2';
 const STATION_KEY = 'registry_station';
