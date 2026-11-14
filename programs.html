@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Choose a programme — Event Registry</title>
+<style>
+  :root{--accent:#4f46e5;--muted:#64748b;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:linear-gradient(160deg,#0f172a,#1e293b);
+    min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px;
+    padding-top:calc(24px + env(safe-area-inset-top,0px));padding-bottom:calc(32px + env(safe-area-inset-bottom,0px));}
+  .wrap{max-width:440px;width:100%;}
+  h1{color:#fff;text-align:center;font-size:1.6rem;margin:0 0 4px;font-weight:800;}
+  p.sub{color:#94a3b8;text-align:center;margin:0 0 22px;font-size:.9rem;}
+  .card{display:flex;align-items:center;gap:14px;background:#fff;border-radius:16px;padding:16px 18px;margin-bottom:12px;text-decoration:none;
+    box-shadow:0 6px 20px rgba(0,0,0,.25);border-left:6px solid var(--accent);cursor:pointer;width:100%;border-top:0;border-right:0;border-bottom:0;text-align:left;font:inherit;}
+  .card:active{transform:scale(.98);}
+  .card .t{font-weight:800;color:#0f172a;font-size:1.05rem;}
+  .card .d{color:var(--muted);font-size:.82rem;margin-top:2px;}
+  .card .go{margin-left:auto;color:#94a3b8;font-size:1.3rem;}
+  .note{color:#94a3b8;text-align:center;font-size:.8rem;margin-top:16px;line-height:1.5;}
+  .err{background:#fef2f2;color:#b91c1c;border-radius:12px;padding:12px 14px;font-size:.85rem;margin-bottom:14px;}
+</style>
+</head>
+<body data-page="picker">
+  <div class="wrap">
+    <h1>Event Registry</h1>
+    <p class="sub">Choose the programme you are registering for</p>
+    <div id="error"></div>
+    <div id="list"><div class="note">Loading programmes…</div></div>
+    <div class="note">Your choice is remembered on this device. Switch any time from the 📍 pill at the top of every page.</div>
+  </div>
+  <script src="config.js"></script>
+  <script>
+  Registry.ready.then(async () => {
+    const err = new URLSearchParams(location.search).get('error');
+    if (err) document.getElementById('error').innerHTML = '<div class="err">' + Registry.esc(err) + '</div>';
+    const list = document.getElementById('list');
+    try {
+      const res = await Registry.get('getPrograms');
+      const items = (res.programs || []).filter(p => p.status !== 'Closed');
+      if (!items.length) { list.innerHTML = '<div class="note">No active programmes. Add one in the Programs sheet.</div>'; return; }
+      list.innerHTML = items.map(p => `
+        <button class="card" data-id="${Registry.esc(p.id)}" style="--accent:${Registry.esc(p.accent || '#4f46e5')}">
+          <div><div class="t">${Registry.esc(p.name)}</div><div class="d">${Registry.esc(p.tagline || '')}</div></div>
+          <div class="go">›</div>
+        </button>`).join('');
+      list.querySelectorAll('.card').forEach(b => b.onclick = () => { Registry.setProgram(b.dataset.id); location.href = 'index.html'; });
+    } catch (e) {
+      list.innerHTML = '<div class="err">Could not load programmes: ' + Registry.esc(e.message) + '</div>';
+    }
+  });
+  </script>
+</body>
+</html>
